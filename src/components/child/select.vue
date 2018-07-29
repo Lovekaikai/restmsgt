@@ -6,10 +6,10 @@
                 <span></span>
             </div>
             <ul>
-                <li @click.stop="selectSort(index)" v-for="(item,index) in List" :key="index">
+                <li @click.stop="selectSort(index,item)" v-for="(item,index) in List" :key="index">
                     <span>
                         {{item.name}}
-                        <template v-if="active===index">
+                        <template v-if="active===index&item.value!==0">
                             <i class="iconfont icon-paixujiangxu" v-if="sortBo"></i>
                             <i class="iconfont icon-paixushengxu" v-if="!sortBo"></i>
                         </template>
@@ -21,7 +21,7 @@
 </template>
 <script>
 export default {
-  props: ['formType'],
+  props: ['urlObj'],
   data () {
     return {
       List: [
@@ -31,32 +31,44 @@ export default {
         { name: '流程名', value: 3 },
         { name: '表单名', value: 4 }
       ],
-      active: 0,
-      sortBo: false
+      active: 0,//是否选中
+      sortBo: false, //显示不同的排序
+      oldValue:'' //对比前后值是否相等
     }
   },
   methods: {
     close () {
       this.$emit('closeSort')
     },
-    selectSort (sort) {
-      this.active = sort
-      this.sortBo = !this.sortBo
-      this.$emit('closeSort', { sort: sort, order: this.sortBo ? 1 : 0 })
+    selectSort (sort,item) {
+      if(sort){
+        if(this.oldValue==item.value){
+          this.sortBo = !this.sortBo
+        }
+        else{
+          this.sortBo=false
+          this.oldValue=item.value
+        }
+        this.$emit('closeSort', { sort: sort, order: this.sortBo ? 1 : 0 })
+         this.active = sort
+      }else{
+        this.$emit('closeSort', { sort: 0, order:  0 })
+      }
+    this.active = sort
     }
   },
   created () {
-    if (this.formType === 'pNotifyList') {
+    if (this.urlObj.type === 'pNotifyList') {
       this.List = [
-        { name: '进行中', value: 0 },
+        { name: '默认', value: 0 },
         { name: '申请时间', value: 1 },
         { name: '发送人', value: 2 },
         { name: '凯', value: 3 },
         { name: '流程名字', value: 4 }
       ]
-    } else if (this.formType === 'pDealList') {
+    } else if (this.urlObj.type === 'pDealList') {
       this.List = [
-        { name: '代办', value: 0 },
+        { name: '默认', value: 0 },
         { name: '申请时间', value: 1 },
         { name: '发送人', value: 2 },
         { name: '凯', value: 3 },
@@ -64,7 +76,7 @@ export default {
       ]
     } else {
       this.list = [
-        { name: '阅读', value: 0 },
+        { name: '默认', value: 0 },
         { name: '申请时间', value: 1 },
         { name: '发送人', value: 2 },
         { name: '流程名', value: 3 },

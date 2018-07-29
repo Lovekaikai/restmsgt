@@ -9,7 +9,7 @@
 </template>
 <script>
 export default {
-  props: ['formType'],
+  props: ['urlObj'],
   data () {
     return {
       list: [{ name: '代办', value: '0' }, { name: '已办', value: '1' }],
@@ -23,7 +23,7 @@ export default {
     }
   },
   created () {
-    if (this.formType === 'pNotifyList') {
+    if (this.urlObj.type === 'pNotifyList') {
       this.list = [
         {
           name: '运行中',
@@ -44,6 +44,7 @@ export default {
         { name: '未阅读', value: '1' }
       ]
     }
+    this.active = this.urlObj.state
   }
 }
 </script>

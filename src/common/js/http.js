@@ -4,7 +4,6 @@ import qs from 'qs'
 export default class common {
   static req (url, param, sucessCallback, errCallback) {
     param = param || {}
-
     let _promise = new Promise((resolve, reject) => {
       axios({
         url: this.test(url),
