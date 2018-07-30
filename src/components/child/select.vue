@@ -24,63 +24,56 @@ export default {
   props: ['urlObj'],
   data () {
     return {
-      List: [
-        { name: '默认', value: 0 },
-        { name: '申请时间', value: 1 },
-        { name: '发送人', value: 2 },
-        { name: '流程名', value: 3 },
-        { name: '表单名', value: 4 }
-      ],
-      active: 0,//是否选中
-      sortBo: false, //显示不同的排序
-      oldValue:'' //对比前后值是否相等
+      List: [],
+      active: 0, // 是否选中
+      sortBo: false, // 显示不同的排序
+      oldValue: '' // 对比前后值是否相等
     }
   },
   methods: {
     close () {
       this.$emit('closeSort')
     },
-    selectSort (sort,item) {
-      if(sort){
-        if(this.oldValue==item.value){
+    selectSort (sort, item) {
+      if (sort) {
+        if (this.oldValue === item.value) {
           this.sortBo = !this.sortBo
-        }
-        else{
-          this.sortBo=false
-          this.oldValue=item.value
+        } else {
+          this.sortBo = false
+          this.oldValue = item.value
         }
         this.$emit('closeSort', { sort: sort, order: this.sortBo ? 1 : 0 })
-         this.active = sort
-      }else{
-        this.$emit('closeSort', { sort: 0, order:  0 })
+        this.active = sort
+      } else {
+        this.$emit('closeSort', { sort: 0, order: 0 })
       }
-    this.active = sort
+      this.active = sort
     }
   },
   created () {
+    console.log(this.urlObj.type)
     if (this.urlObj.type === 'pNotifyList') {
       this.List = [
         { name: '默认', value: 0 },
         { name: '申请时间', value: 1 },
         { name: '发送人', value: 2 },
-        { name: '凯', value: 3 },
-        { name: '流程名字', value: 4 }
+        { name: '流程名', value: 3 },
+        { name: '表单名', value: 4 },
+        { name: '处理时间', value: 5 }
       ]
     } else if (this.urlObj.type === 'pDealList') {
       this.List = [
         { name: '默认', value: 0 },
-        { name: '申请时间', value: 1 },
-        { name: '发送人', value: 2 },
-        { name: '凯', value: 3 },
-        { name: '流程名字', value: 4 }
+        { name: '申请人', value: 1 },
+        { name: '申请时间', value: 2 },
+        { name: '流程名称', value: 3 },
+        { name: '状态', value: 4 }
       ]
     } else {
-      this.list = [
+      this.List = [
         { name: '默认', value: 0 },
-        { name: '申请时间', value: 1 },
-        { name: '发送人', value: 2 },
-        { name: '流程名', value: 3 },
-        { name: '表单名', value: 4 }
+        { name: '流程实例名', value: 1 },
+        { name: '表单名', value: 2 }
       ]
     }
   }

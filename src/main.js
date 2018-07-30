@@ -7,9 +7,12 @@ import WeVue from 'we-vue'
 import 'we-vue/lib/style.css'
 import '@/common/font/iconfont.css'
 import common from '@/common/js/http.js'
+import { DatetimePicker } from 'mint-ui'
 Vue.config.productionTip = false
 Vue.use(WeVue)
 Vue.prototype.$common = common
+
+Vue.component(DatetimePicker.name, DatetimePicker)
 /* eslint-disable no-new */
 new Vue({
   el: '#app',

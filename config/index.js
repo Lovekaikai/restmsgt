@@ -12,7 +12,7 @@ module.exports = {
     assetsPublicPath: '/',
     proxyTable: {
         '/index.php': {
-        target: 'http://wx.shdh.order.3ruler.com',
+        target: 'https://wx.ls.order.3ruler.com',
         changeOrigin: true,
         pathRewrite: {
           '^/index.php': '/index.php'

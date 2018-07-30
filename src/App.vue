@@ -12,7 +12,7 @@ export default {
 
 <style>
 #app {
-  background: rgb(245, 245, 245);
+  background: #FFF;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   height: 100vh;

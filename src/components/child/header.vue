@@ -12,7 +12,7 @@ export default {
   props: ['urlObj'],
   data () {
     return {
-      list: [{ name: '代办', value: '0' }, { name: '已办', value: '1' }],
+      list: [{ name: '待办', value: '0' }, { name: '已办', value: '1' }],
       active: 0
     }
   },
@@ -23,7 +23,7 @@ export default {
     }
   },
   created () {
-    if (this.urlObj.type === 'pNotifyList') {
+    if (this.urlObj.type === 'pMineList') {
       this.list = [
         {
           name: '运行中',
@@ -38,10 +38,19 @@ export default {
           value: '2'
         }
       ]
-    } else {
+    } else if (this.urlObj.type === 'pNotifyList') {
       this.list = [
         { name: '已阅读', value: '0' },
         { name: '未阅读', value: '1' }
+      ]
+    } else {
+      this.list = [
+        {
+          name: '待办', value: 0
+        },
+        {
+          name: '已办', value: 1
+        }
       ]
     }
     this.active = this.urlObj.state

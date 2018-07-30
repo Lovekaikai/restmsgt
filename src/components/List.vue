@@ -3,31 +3,39 @@
         <div class="header-top">
             <my-header :urlObj="urlObj" @formTitleType="formTitleType"></my-header>
             <div class="search">
-                <input type="text" placeholder="搜索" v-model="params.pro_name" >
+                <input type="text" placeholder="搜索" v-model="params.pro_name">
+                <i class="iconfont icon-shanchu" @click="params.pro_name=''" v-if="params.pro_name"></i>
                 <i class="iconfont icon-shaixuan" @click="showSort = true"></i>
                 <my-select v-show="showSort" @closeSort="closeSort" :urlObj="urlObj"></my-select>
             </div>
         </div>
         <div class="weui-panel__bd">
             <wv-group v-infinite-scroll="loadMore" infinite-scroll-disabled="loading" infinite-scroll-distance="50">
-                <div class="item" v-for="(item,index) in list" :key="index">
+                <div class="item" v-for="(item,index) in list" :key="index" @click="jumpUrl(item)">
                     <div class="weui-media-box weui-media-box_appmsg">
-                        <div class="weui-media-box__hd"><img :src="item.creater_pic_url" alt="" class="weui-media-box__thumb"></div>
+                        <div class="weui-media-box__hd" v-if="urlObj.type!=='pMineList'"><img :src="item.creater_pic_url" alt="" class="weui-media-box__thumb"></div>
                         <div class="weui-media-box__bd">
-                            <h4 class="weui-media-box__title">{{item.creater_name}}</h4>
+                            <h4 class="weui-media-box__title">{{item.formsetinst_name}}</h4>
                             <p class="weui-media-box__desc">申请时间 : {{item['create_time']}}</p>
-                            <p class="weui-media-box__desc">请假时间 : {{item['receive_time']}}</p>
+                            <p class="weui-media-box__desc">请假时间 : {{item['start_time']}}~{{item['start_time']}}</p>
                         </div>
                     </div>
                     <div class="line"></div>
-                    <p class="weui-media-box__desc text">这里是一些描述文字。本例使用 url 进行跳转</p>
+                    <p class="weui-media-box__desc text">请假类型：{{item.type}}
+                        <wv-badge color="#9FC488">{{item.state==0? '进行中':'已结束'}}</wv-badge>
+                    </p>
                 </div>
             </wv-group>
-            <p v-show="loading" class="loading-tips">
+            <p v-show="!loading" class="loading-tips">
                 <wv-spinner type="snake" color="#444" :size="24" />
             </p>
-            <p v-show="!loading" class="loading-tips">
-               <wv-footer class="footer-demo" text="移步到微技术支持"></wv-footer>
+            <div class="has-no-record" v-if="loading&&list.length==0">
+                <img alt="" :src="imgUrl">
+                <p class="p1">暂时没有内容</p>
+                <p class="p2"></p>
+            </div>
+            <p v-show="loading" class="loading-tips">
+                <wv-footer class="footer-demo" text="移步到微技术支持"></wv-footer>
             </p>
         </div>
     </div>
@@ -35,10 +43,11 @@
 <script>
 import MyHeader from '@/components/child/header'
 import MySelect from '@/components/child/select'
-
+const img = require('@/assets/weixin_application_nothing01.jpg')
 export default {
   data () {
     return {
+      imgUrl: img,
       value: '',
       showSort: false,
       urlObj: {},
@@ -46,7 +55,8 @@ export default {
       loading: false,
       allLoaded: false,
       wrapperHeight: 0,
-      params: { type: 0, pro_name: '', sort: 0, order: 1, page: 1, id: '86482' }
+      numberPage: 0,
+      params: { type: 0, pro_name: '', sort: 0, order: 1, page: 1 }
     }
   },
   components: {
@@ -54,35 +64,34 @@ export default {
     MySelect
   },
   mounted () {
-    this.wrapperHeight = document.documentElement.clientHeight - this.$refs.wrapper.getBoundingClientRect().top
+    this.wrapperHeight =
+      document.documentElement.clientHeight -
+      this.$refs.wrapper.getBoundingClientRect().top
     this.getList(this.params)
   },
   methods: {
-    mate(url){
-     switch (url) {
-      case 'pMineList': return  '/index.php?model=index&m=app&a=index&cmd=104'
-        break;
-      case 'pDealList': return '/index.php?model=index&m=app&a=index&cmd=103';
-        break;
-      case 'pNotifyList': return '/index.php?model=index&m=app&a=index&cmd=105'
-        break;
-      default: return  url
-        break;
-     }
-    },
-    closeSort (obj) {
-      this.showSort = false
-      this.getList(obj)
-    },
-    formTitleType (obj) {
-    this.getList(obj)
+    mate (url) {
+      if (url === 'pMineList') {
+        return '/index.php?model=restmgt&m=ajax&a=index&cmd=103'
+      } else if (url === 'pDealList') {
+        return '/index.php?model=restmgt&m=ajax&a=index&cmd=102'
+      } else if (url === 'pNotifyList') {
+        return '/index.php?model=index&m=app&a=index&cmd=105'
+      }
     },
     getList (opt) {
       Object.assign(this.params, opt)
-      this.$common.req(this.mate(this.urlObj.type), this.params, (res) => {
+      this.$common.req(this.mate(this.urlObj.type), this.params, res => {
         let newArr = res.data.info.data.map((item, index, input) => {
-          item['create_time'] = this.$common.translateTimeStampToLocalDate(item['create_time'])
-          item['receive_time'] = this.$common.translateTimeStampToLocalDate(item['receive_time'])
+          item['create_time'] = this.$common.translateTimeStampToLocalDate(
+            item['create_time']
+          )
+          item['start_time'] = this.$common.translateTimeStampToLocalDate2(
+            item['start_time']
+          )
+          item['end_time'] = this.$common.translateTimeStampToLocalDate2(
+            item['end_time']
+          )
           return item
         })
         if (this.params.page === 1) {
@@ -91,7 +100,7 @@ export default {
         } else {
           this.list = this.list.concat(newArr)
         }
-        if (res.data.length === 0) {
+        if (res.data.info.data.length === 0) {
           this.loading = true
         }
       })
@@ -101,23 +110,31 @@ export default {
         this.getList({ page: this.params.page + 1 })
       } else {
         this.getNumber()
-        this.loading = false
       }
     },
     getNumber () {
       return this.numberPage++
     },
-    requset () {}
+    jumpUrl (item) {
+      console.log(item)
+    },
+    closeSort (obj) {
+      this.showSort = false
+      this.getList({page: 1, order: obj.order, sort: obj.sort})
+    },
+    formTitleType (obj) {
+      this.getList({page: 1, type: obj.type})
+    }
   },
-  watch:{
-    'params.pro_name'(val){
-      this.getList({pro_name:val})
+  watch: {
+    'params.pro_name' (val) {
+      this.getList({ page: 1, pro_name: val })
     }
   },
   created () {
     this.urlObj = {
-      type : 'pDealList',
-      state : 0
+      type: 'pMineList',
+      state: 0
     }
   }
 }
@@ -150,7 +167,11 @@ export default {
     position: absolute;
     right: 10px;
     top: 10px;
-
+  }
+  .icon-shanchu {
+    position: absolute;
+    right: 40px;
+    top: 10px;
   }
 }
 .weui-panel__bd {
@@ -171,6 +192,16 @@ export default {
   border: 0.5px solid #d9d9d9;
   margin: 0 auto;
 }
+.has-no-record {
+  text-align: center;
+  padding-left: 3%;
+  padding-right: 3%;
+  img {
+    width: 275px;
+    height: 150px;
+    padding-bottom: 10px;
+  }
+}
 </style>
 <style>
 .weui-media-box_appmsg .weui-media-box__thumb {
@@ -180,7 +211,14 @@ export default {
   margin-top: 0;
   background-color: rgb(245, 245, 245);
 }
-.footer-demo{
-  padding:5px 0;
-  }
+.footer-demo {
+  padding: 10px 0;
+}
+.weui-badge {
+  margin-right: 15px;
+  float: right;
+}
+.loading-tips{
+    text-align:center;
+}
 </style>
